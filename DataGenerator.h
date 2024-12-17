@@ -24,6 +24,8 @@ public:
     // Funkcja wczytująca dane z zadanego pliku
     int loadData(std::string name, bool sym);
 
+    void loadTSPLIB(std::string name);
+
     // Funkcja wypisująca macierz na ekranie
     void printData(bool sym);
 private:
