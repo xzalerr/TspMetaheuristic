@@ -5,9 +5,10 @@
 #include <chrono>
 #include <utility>
 
-void ProblemSolver::changeParameters(double temp, double alpha, double seconds, bool useNeighbour) {
+void ProblemSolver::changeParameters(double temp, double alpha, int definition, double seconds, bool useNeighbour) {
     this->temp = temp;
     this->alpha = alpha;
+    this->definition = definition;
     this->seconds = seconds;
     this->useNeighbour = useNeighbour;
 }
@@ -206,7 +207,7 @@ int* ProblemSolver::getNext(int* path, int n, int c) {
     return newPath;
 }
 
-std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int definition) {
+std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dist(0.0, 1.0);
@@ -227,7 +228,6 @@ std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int defini
     auto startTime = std::chrono::steady_clock::now();
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsedTime = currentTime - startTime;
-    std::chrono::duration<double> bestTime = currentTime - startTime;
     while(elapsedTime.count() < seconds) {
         currentTime = std::chrono::steady_clock::now();
         elapsedTime = currentTime - startTime;
@@ -253,5 +253,68 @@ std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int defini
         temp *= alpha;
     }
     delete[] path;
+    std::cout << "Best solution found has a cost: " << bestCost << "\nIt is:\n";
+    for(int i = 0; i < n; i++) {
+        std::cout << bestPath[i] << "-";
+    }
+    std::cout << bestPath[0] << "\n";
+    return std::make_pair(bestCost, bestPath);
+}
+
+std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int count, std::fstream& output) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dist(0.0, 1.0);
+
+    int* path = new int[n];
+    if(useNeighbour) {
+        path = tspNeighbour(matrix, n).second;
+    } else {
+        for(int i = 0; i < n; i++) {
+            path[i] = i;
+        }
+    }
+
+    int bestCost = findCost(matrix, path, n);
+    int* bestPath = new int[n];
+    std::copy(path, path + n, bestPath);
+
+    auto startTime = std::chrono::steady_clock::now();
+    auto currentTime = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsedTime = currentTime - startTime;
+    std::chrono::duration<double> bestTime;
+    while(elapsedTime.count() < seconds) {
+        currentTime = std::chrono::steady_clock::now();
+        elapsedTime = currentTime - startTime;
+        int* newPath = getNext(path, n, definition);
+        int newCost = findCost(matrix, newPath, n);
+        int costDiff = newCost - findCost(matrix, path, n);
+
+        if(costDiff <= 0) {
+            delete[] path;
+            path = newPath;
+            if (newCost < bestCost) {
+                bestCost = newCost;
+                std::copy(path, path + n, bestPath);
+                bestTime = elapsedTime;
+
+                output << count << ";" << bestTime.count() << ";" << bestCost << "\n";
+            }
+        } else {
+            double rand = dist(gen);
+            double prob = std::exp(-costDiff / temp);
+            if(rand <= prob) {
+                delete[] path;
+                path = newPath;
+            }
+        }
+        temp *= alpha;
+    }
+    delete[] path;
+    std::cout << "Best solution found has a cost: " << bestCost << "\nIt is:\n";
+    for(int i = 0; i < n; i++) {
+        std::cout << bestPath[i] << "-";
+    }
+    std::cout << bestPath[0] << "\n";
     return std::make_pair(bestCost, bestPath);
 }

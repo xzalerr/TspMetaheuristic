@@ -4,7 +4,6 @@
 #include "Config.h"
 #include "DataGenerator.h"
 #include "ProblemSolver.h"
-#include <map>
 
 // Kasa Runner odpowiada za uruchamianie tryby testowania algorytmów lub symulacji do wykonania pomiarów
 class Runner {
@@ -21,9 +20,6 @@ public:
 
     // Wykonuje program gdy wybrano tryb "simulation"
     void executeSimulation();
-
-    // Zapisuje dane z mapy do pliku .csv, gdzie klucz to rozmiar instancji a wartość to zmierzone czasy w wektorze
-    void saveToCSV(std::map<int, std::vector<double>>& results, std::string alg);
 };
 
 

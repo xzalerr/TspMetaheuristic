@@ -2,16 +2,19 @@
 #define TSPMETAHEURISTIC_PROBLEMSOLVER_H
 
 #include <vector>
+#include <fstream>
 #include "DataGenerator.h"
 
 // Klasa zawierajaca metody do rozwiazywana problemu komiwojazera metoda podzialu i ograniczen
 class ProblemSolver {
 public:
-    std::pair<int, int*> simAnnealing(int** matrix, int n, int definition);
+    std::pair<int, int*> simAnnealing(int** matrix, int n);
+    std::pair<int, int*> simAnnealing(int** matrix, int n, int count, std::fstream& output);
     std::pair<int, int*> tspNeighbour(int** matrix, int n);
-    void changeParameters(double temp, double alpha, double seconds, bool useNeighbour);
+    void changeParameters(double temp, double alpha, int definiton, double seconds, bool useNeighbour);
     double generateTemp(int** matrix, int n, double probability, int tests);
 private:
+    int definition;
     double temp, alpha, seconds;
     bool useNeighbour;
 

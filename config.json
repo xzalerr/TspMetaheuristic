@@ -1,16 +1,26 @@
 {
-  "description": "Confuguration for TSP. 'test' mode enables algorithm testing. 'simulation' does chosen algorithm on generated graphs x times",
-  "mode": "test",
+  "description": "Confuguration for TSP.",
+  "test_mode": "enables algorithm testing.",
+  "simulation_mode": "does chosen algorithm on chosen graphs x times and saves results to proper file",
+  "neighbourDefinition options": "-1 -> random; 0 -> inverse; 1 -> swap; 2 -> insert",
+  "mode": "simulation",
   "test": {
-    "dataFile": "/Users/rafalzalecki/CLionProjects/TravellingSalesmanProblemBruteForce/matrix_4x4.atsp",
-    "generateRandom": true,
-    "generatorProblemSize": 10,
-    "testType": "asymmetric"
+    "dataFile": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/graphs/ftv47.atsp",
+    "worseAcceptanceProbability": 0.8,
+    "alpha": 0.99,
+    "neighbourDefinition": -1,
+    "stopSeconds": 120,
+    "initialPathFromNearestNeighbour": true
   },
   "simulation": {
-    "problemSizes": [6, 7, 8, 9, 10, 11, 12],
-    "matrixType": "symmetric", 
-    "iterations": 100,
+    "dataFile": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/graphs/ftv47.atsp",
+    "worseAcceptanceProbability": 0.8,
+    "alpha": 0.99,
+    "neighbourDefinition": -1,
+    "stopSeconds": 120,
+    "initialPathFromNearestNeighbour": true,
+    "outputFileName": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/results/47_t08_a099_nn.csv",
+    "runsNumber": 10,
     "showProgress": true
   }
 }

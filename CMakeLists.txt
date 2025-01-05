@@ -3,6 +3,14 @@ project(TspMetaheuristic)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CONFIG_FILE_PATH "${CMAKE_SOURCE_DIR}/config.json")
+if (EXISTS ${CONFIG_FILE_PATH})
+    message(STATUS "Znaleziono config.json: ${CONFIG_FILE_PATH}")
+    add_compile_definitions(CONFIG_FILE_PATH="${CONFIG_FILE_PATH}")
+else()
+    message(FATAL_ERROR "Plik config.json nie został znaleziony w ${CMAKE_SOURCE_DIR}!")
+endif()
+
 add_executable(TspMetaheuristic main.cpp
         Config.cpp
         Config.h

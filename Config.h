@@ -10,16 +10,16 @@ public:
     std::string mode;
 
     std::string dataFile;
-    bool generateRandom;
-    int generatorProblemSize;
-    std::string testType;
+    double worseAcceptanceProbability;
+    double alpha;
+    int neighbourDefinition;
+    int stopSeconds;
+    bool initialPathFromNearestNeighbour;
 
-    std::vector<int> problemSizes;
-    std::string matrixType;
-    int iterations;
-    std::string simulationRandomType;
+    std::string outputFileName;
+    int runsNumber;
     bool showProgress;
-
+    
     // Metoda wczytująca konfigurację z pliku JSON o podanej nazwie
     void loadData(const std::string& fileName);
 };

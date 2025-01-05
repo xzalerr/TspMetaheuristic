@@ -1,6 +1,8 @@
 #include <iostream>
 #include "ProblemSolver.h"
 #include "DataGenerator.h"
+#include "Config.h"
+#include "Runner.h"
 
 // ml flow - mozna sprobowac uzyc do uruchamiania serii symulacji
 // np zrobic zeby posortowac tam tylko wyniki gdzie blad wzgledny jest mniejszy niz 10% 
@@ -10,13 +12,21 @@
 // w rozmiarze 170 np ciezko bedzie uzyskac dobry wynik, mniej niz 10% bledu to dobry wynik
 
 int main() {
-    DataGenerator dg;
+    Config config;
+    std::string path = CONFIG_FILE_PATH;
+    config.loadData(path);
+
+    DataGenerator generator;
     ProblemSolver ps;
-    dg.loadTSPLIB("/Users/rafalzalecki/CLionProjects/TspMetaheuristic/graphs/ftv47.atsp");
-    // dg.printData(false);
-    // parametry do liczenia temperatury opracowałem empirycznie i 500 testow okazalo sie byc najdokladniejsze
-    ps.changeParameters(ps.generateTemp(dg.matrix, dg.matrixSize, 0.8, 500), 0.99, 120, true);
-    auto result = ps.simAnnealing(dg.matrix, dg.matrixSize, -1);
-    std::cout << "Cost: " << result.first << "\n";
+    Runner runner(config, generator, ps);
+
+    if (config.mode == "test") {
+        runner.executeTest();
+    } else if (config.mode == "simulation") {
+        runner.executeSimulation();
+    } else {
+        std::cerr << "Nie ma takiej opcji!\n";
+    }
+
     return 0;
 }
