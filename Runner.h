@@ -16,15 +16,6 @@ public:
     // Konstruktor przyjmujący konfigurację, generator danych oraz solver jako argumenty
     Runner(Config& config, DataGenerator& generator, ProblemSolver& ps);
 
-    // Mierzy czas wykonania algorytmu dfs
-    double measureDfs(int& minCost, int size, bool sym);
-
-    // Mierzy czas wykonania algorytmu bfs
-    double measureBfs(int& minCost, int size, bool sym);
-
-    // Mierzy czas wykonania algorytmu bfsZ
-    double measureBfsZ(int& minCost, int size, bool sym);
-
     // Wykonuje program gdy wybrano tryb "test"
     void executeTest();
 

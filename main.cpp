@@ -12,8 +12,11 @@
 int main() {
     DataGenerator dg;
     ProblemSolver ps;
-    dg.loadTSPLIB("/Users/rafalzalecki/CLionProjects/TspMetaheuristic/ftv47.atsp");
+    dg.loadTSPLIB("/Users/rafalzalecki/CLionProjects/TspMetaheuristic/graphs/ftv47.atsp");
     // dg.printData(false);
-    std::cout << "Cost found:" << ps.simAnnealing(dg.matrix, 47, 10000, 0.999, 60) << "\n";
+    // parametry do liczenia temperatury opracowałem empirycznie i 500 testow okazalo sie byc najdokladniejsze
+    ps.changeParameters(ps.generateTemp(dg.matrix, dg.matrixSize, 0.8, 500), 0.99, 120, true);
+    auto result = ps.simAnnealing(dg.matrix, dg.matrixSize, -1);
+    std::cout << "Cost: " << result.first << "\n";
     return 0;
 }

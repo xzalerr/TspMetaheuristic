@@ -1,7 +1,112 @@
 #include "ProblemSolver.h"
+#include <cmath>
 #include <random>
 #include <iostream>
 #include <chrono>
+#include <utility>
+
+void ProblemSolver::changeParameters(double temp, double alpha, double seconds, bool useNeighbour) {
+    this->temp = temp;
+    this->alpha = alpha;
+    this->seconds = seconds;
+    this->useNeighbour = useNeighbour;
+}
+
+double ProblemSolver::generateTemp(int** matrix, int n, double probability, int tests) {
+    int* path = new int[n];
+    int costDiff = 0;
+
+    if(useNeighbour) {
+        path = tspNeighbour(matrix, n).second;
+    } else {
+        for(int i = 0; i < n; i++) {
+            path[i] = i;
+        }
+    }
+
+    int currCost = findCost(matrix, path, n);
+
+    for(int i = 0; i < tests; i++) {
+        int* newPath = new int[n];
+        newPath = getNext(path, n, -1);
+        int newCost = findCost(matrix, newPath, n);
+
+        costDiff += std::abs(newCost - currCost);
+        
+        delete[] path;
+        path = newPath;
+        currCost = newCost;
+    }
+    delete[] path;
+
+    double avg = double(costDiff) / tests;
+
+    double temp = -avg / std::log(probability);
+
+    return temp;
+}
+
+// https://bost.ocks.org/mike/shuffle/
+void ProblemSolver::shuffleArray(int* arr, int n) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dist(0.0, 1.0);
+
+    int index;
+
+    while(n>0) {
+        index = std::floor(dist(gen) * n--);
+        std::swap(arr[index], arr[n]);
+    }
+}
+
+int ProblemSolver::findNeighbour(int** matrix, int n, bool* visited, int city) {
+    int min = INT_MAX;
+    int nearest = -1;
+    // Znajdź najbliższe miasto od zadanego city, które nie jest jeszcze odwiedzone
+    for(int i = 0; i < n; i++) {
+        if((matrix[city][i] < min) && !visited[i]) {
+            min = matrix[city][i];
+            nearest = i;
+        }
+    }
+    return nearest;
+}
+
+std::pair<int, int*> ProblemSolver::tspNeighbour(int** matrix, int n) {
+    int minCost = 0;
+    // Utwórz tablice kontrolujaca odwiedzone miasta
+    bool* visited = new bool[n];
+    for(int i = 0; i < n; i++) {
+        visited[i] = false;
+    }
+    // Utwórz tablice kontrolujaca sciezke
+    int* path = new int[n];
+    path[0] = 0;
+    for(int i = 1; i < n; i++) {
+        path[i] = -1;
+    }
+    int currCity = 0;
+
+    /* Dodaj obence miasto jako odwiedzone
+     * Następnie jako kolejne ustal najbliższe miasto
+     * Zwiększ koszt o droge z obecnego do następnego
+     * Zmień obecne miasto na nowo dodane
+     */
+    for(int i = 0; i < n-1; i++) {
+        visited[currCity] = true;
+        int nextCity = findNeighbour(matrix, n, visited, currCity);
+        minCost += matrix[currCity][nextCity];
+        currCity = nextCity;
+        path[i+1] = currCity;
+    }
+    // Komiwojażer musi powrócić do miasta startowego więc dodaj koszt przejścia z ostatniego do pierwszego
+    minCost += matrix[currCity][0];
+    path[n] = 0;
+    delete[] visited;
+
+    return std::make_pair(minCost, path);
+}
 
 int ProblemSolver::findCost(int **matrix, int *path, int n) {
     int cost = 0;
@@ -71,7 +176,7 @@ void ProblemSolver::insert(int* path, int n) {
     path[second] = nodeFirst;
 }
 
-int* ProblemSolver::getNext(int* path, int n) {
+int* ProblemSolver::getNext(int* path, int n, int c) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(0, 2);
@@ -81,7 +186,12 @@ int* ProblemSolver::getNext(int* path, int n) {
         newPath[i] = path[i];
     }
 
-    int choice = dist(gen);
+    int choice;
+    if(c == -1) {
+        choice = dist(gen);
+    } else {
+        choice = c;
+    }
 
     if(choice == 0) {
         inverse(newPath, n);
@@ -96,36 +206,42 @@ int* ProblemSolver::getNext(int* path, int n) {
     return newPath;
 }
 
-int ProblemSolver::simAnnealing(int** matrix, int n, double t, double a, double seconds) {
-    double temp = t;
-    double alpha = a;
-
+std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int definition) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dist(0.0, 1.0);
 
     int* path = new int[n];
-    for(int i = 0; i < n; i++) {
-        path[i] = i;
+    if(useNeighbour) {
+        path = tspNeighbour(matrix, n).second;
+    } else {
+        for(int i = 0; i < n; i++) {
+            path[i] = i;
+        }
     }
-    int count = 0;
+
+    int bestCost = findCost(matrix, path, n);
+    int* bestPath = new int[n];
+    std::copy(path, path + n, bestPath);
 
     auto startTime = std::chrono::steady_clock::now();
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsedTime = currentTime - startTime;
+    std::chrono::duration<double> bestTime = currentTime - startTime;
     while(elapsedTime.count() < seconds) {
         currentTime = std::chrono::steady_clock::now();
         elapsedTime = currentTime - startTime;
-        int* newPath = getNext(path, n);
+        int* newPath = getNext(path, n, definition);
+        int newCost = findCost(matrix, newPath, n);
+        int costDiff = newCost - findCost(matrix, path, n);
 
-        int costDiff = findCost(matrix, newPath, n) - findCost(matrix, path, n);
-
-        if(costDiff < 0) {
+        if(costDiff <= 0) {
             delete[] path;
             path = newPath;
-        } else if(costDiff == 0) {
-            delete[] path;
-            path = newPath;
+            if (newCost < bestCost) {
+                bestCost = newCost;
+                std::copy(path, path + n, bestPath);
+            }
         } else {
             double rand = dist(gen);
             double prob = std::exp(-costDiff / temp);
@@ -135,7 +251,7 @@ int ProblemSolver::simAnnealing(int** matrix, int n, double t, double a, double 
             }
         }
         temp *= alpha;
-        count++;
     }
-    return findCost(matrix, path, n);
+    delete[] path;
+    return std::make_pair(bestCost, bestPath);
 }
