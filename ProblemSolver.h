@@ -18,7 +18,6 @@ private:
     double temp, alpha, seconds;
     bool useNeighbour;
 
-    static void shuffleArray(int* arr, int n);
     static int findNeighbour(int** matrix, int n, bool* visited, int city);
     static int findCost(int** matrix, int* path, int n);
     static void inverse(int* path, int n);

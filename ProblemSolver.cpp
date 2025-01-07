@@ -5,10 +5,10 @@
 #include <chrono>
 #include <utility>
 
-void ProblemSolver::changeParameters(double temp, double alpha, int definition, double seconds, bool useNeighbour) {
+void ProblemSolver::changeParameters(double temp, double alpha, int definiton, double seconds, bool useNeighbour) {
     this->temp = temp;
     this->alpha = alpha;
-    this->definition = definition;
+    this->definition = definiton;
     this->seconds = seconds;
     this->useNeighbour = useNeighbour;
 }
@@ -45,20 +45,6 @@ double ProblemSolver::generateTemp(int** matrix, int n, double probability, int 
     double temp = -avg / std::log(probability);
 
     return temp;
-}
-
-// https://bost.ocks.org/mike/shuffle/
-void ProblemSolver::shuffleArray(int* arr, int n) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dist(0.0, 1.0);
-
-    int index;
-
-    while(n>0) {
-        index = std::floor(dist(gen) * n--);
-        std::swap(arr[index], arr[n]);
-    }
 }
 
 int ProblemSolver::findNeighbour(int** matrix, int n, bool* visited, int city) {
@@ -214,7 +200,10 @@ std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n) {
 
     int* path = new int[n];
     if(useNeighbour) {
-        path = tspNeighbour(matrix, n).second;
+        auto result = tspNeighbour(matrix, n);
+        int* tempPath = result.second;
+        std::copy(tempPath, tempPath + n, path);
+        delete[] tempPath;
     } else {
         for(int i = 0; i < n; i++) {
             path[i] = i;
@@ -248,6 +237,8 @@ std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n) {
             if(rand <= prob) {
                 delete[] path;
                 path = newPath;
+            } else {
+                delete[] newPath;
             }
         }
         temp *= alpha;
@@ -268,7 +259,10 @@ std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int count,
 
     int* path = new int[n];
     if(useNeighbour) {
-        path = tspNeighbour(matrix, n).second;
+        auto result = tspNeighbour(matrix, n);
+        int* tempPath = result.second;
+        std::copy(tempPath, tempPath + n, path);
+        delete[] tempPath;
     } else {
         for(int i = 0; i < n; i++) {
             path[i] = i;
@@ -306,6 +300,8 @@ std::pair<int, int*> ProblemSolver::simAnnealing(int** matrix, int n, int count,
             if(rand <= prob) {
                 delete[] path;
                 path = newPath;
+            } else {
+                delete[] newPath;
             }
         }
         temp *= alpha;

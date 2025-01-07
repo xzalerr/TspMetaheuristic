@@ -13,13 +13,13 @@
     "initialPathFromNearestNeighbour": true
   },
   "simulation": {
-    "dataFile": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/graphs/ftv47.atsp",
+    "dataFile": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/graphs/rbg403.atsp",
     "worseAcceptanceProbability": 0.8,
-    "alpha": 0.99,
+    "alpha": 0.999,
     "neighbourDefinition": -1,
     "stopSeconds": 120,
     "initialPathFromNearestNeighbour": true,
-    "outputFileName": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/results/47_t08_a099_nn.csv",
+    "outputFileName": "/Users/rafalzalecki/CLionProjects/TspMetaheuristic/results/403_t08_a0999_nn.csv",
     "runsNumber": 10,
     "showProgress": true
   }

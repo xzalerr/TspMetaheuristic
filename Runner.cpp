@@ -44,14 +44,19 @@ void Runner::executeSimulation() {
     for(int i = 0; i < config.runsNumber; i++) {
         if(config.showProgress) std::cout << "Currently running test " << i+1 << "/" << config.runsNumber << "\n";
         auto temp = ps.simAnnealing(generator.matrix, generator.matrixSize, i, output);
-        if(temp.first < minResult.first) minResult = temp;
+        if(temp.first < minResult.first) {
+            delete[] minResult.second;
+            minResult = temp;
+        } else {
+            delete[] temp.second;
+        }
     }
 
     output << "\nNajlepsza znaleziona ścieka:\n";
     for(int i = 0; i < generator.matrixSize; i++) {
-        output << minResult.second[i];
+        output << minResult.second[i] << "-";
     }
-
+    output << minResult.second[0] << "\n";
     output.close();
 }
 
